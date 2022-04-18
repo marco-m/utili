@@ -1,0 +1,24 @@
+# utili/Taskfile
+
+version: '3'
+
+tasks:
+
+  clean:
+    desc: Delete build artifacts
+    cmds: [rm -rf bin/*]
+
+  copydir:
+    desc: Build the copydir executable
+    cmds:
+      - go build -o bin/copydir ./cmd/copydir
+
+  test:
+    desc: Run the tests
+    cmds:
+      - "{{.TESTRUNNER}} ./..."
+    vars:
+      GOTESTSUM:
+        sh: if which gotestsum > /dev/null; then echo gotestsum; fi
+      TESTRUNNER: "{{if .GOTESTSUM}}{{.GOTESTSUM}}{{else}}go test{{end}}"
+
