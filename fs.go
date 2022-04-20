@@ -70,13 +70,12 @@ func CopyDir(
 	dst string,
 	rename RenameFn,
 	tmplData TemplateData,
-) error {
+) {
 	t.Helper()
+
 	if err := CopyDir2(src, dst, rename, tmplData); err != nil {
 		t.Fatal("CopyDir:", err)
 	}
-
-	return nil
 }
 
 func CopyDir2(src string, dst string, rename RenameFn, tmplData TemplateData) error {
@@ -175,4 +174,26 @@ func Tree(t *testing.T, dir string) {
 		t.Fatal("Tree:", err)
 	}
 	t.Logf("\n%s\n", string(out))
+}
+
+// Chdir calls os.Chdir(dir) for the test to use. The directory is restored to the
+// previous one by t.Cleanup when the test completes.
+// If any operation fails, ChDir terminates the test by calling t.Fatal.
+func Chdir(t *testing.T, dir string) {
+	t.Helper()
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal("chdir: getting cwd:", err)
+	}
+
+	t.Cleanup(func() {
+		if err := os.Chdir(cwd); err != nil {
+			t.Fatal("chdir: cleanup: doing chdir:", err)
+		}
+	})
+
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal("chdir: doing chdir:", err)
+	}
 }
